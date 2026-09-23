@@ -1,0 +1,38 @@
+services:
+  app:
+    build:
+      context: .
+      target: development
+    # El bind mount tapa /app; sincronizamos el volumen node_modules al iniciar
+    # para que dependencias nuevas no queden fuera del contenedor de desarrollo.
+    command: sh -c "npm install && npm run dev -- --hostname 0.0.0.0"
+    env_file:
+      - .env
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - node_modules:/app/node_modules
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-configura}
+      POSTGRES_USER: ${POSTGRES_USER:-configura}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-configura_local_only}
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  node_modules:
+  postgres_data:
