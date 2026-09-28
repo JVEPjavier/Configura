@@ -3,6 +3,7 @@
 import { and, eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db } from "@/db";
 import { products, stores } from "@/db/schema";
@@ -94,4 +95,15 @@ export async function toggleProductPublication(productId: string, status: "draft
     .where(and(eq(products.id, productId), eq(products.storeId, store.id)))
     .returning({ id: products.id });
   if (!result[0]) throw new Error("Producto no encontrado.");
+}
+
+export async function deleteProduct(productId: string) {
+  const store = await currentStore();
+  const result = await db
+    .delete(products)
+    .where(and(eq(products.id, productId), eq(products.storeId, store.id)))
+    .returning({ id: products.id });
+  if (!result[0]) throw new Error("Producto no encontrado.");
+  revalidatePath("/app/productos");
+  redirect("/app/productos");
 }

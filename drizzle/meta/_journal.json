@@ -15,6 +15,20 @@
       "when": 1789428386757,
       "tag": "0001_bored_kat_farrell",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790572277006,
+      "tag": "0002_panoramic_shooting_star",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1790572589234,
+      "tag": "0003_faulty_winter_soldier",
+      "breakpoints": true
     }
   ]
 }

@@ -2,7 +2,8 @@ import Link from "next/link";
 import { and, eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
-import { toggleProductPublication, updateProduct } from "@/actions/products";
+import { deleteProduct, toggleProductPublication, updateProduct } from "@/actions/products";
+import { DeleteProductButton } from "@/components/delete-product-button";
 import { ProductOptionsEditor } from "@/components/product-options-editor";
 import { ProductRulesEditor } from "@/components/product-rules-editor";
 import { ProductForm } from "@/components/product-form";
@@ -74,22 +75,26 @@ export default async function EditProductPage({
     product.id,
     product.status === "published" ? "draft" : "published",
   );
+  const remove = deleteProduct.bind(null, product.id);
 
   return (
     <main className="min-h-screen bg-background p-6 md:p-10">
       <div className="mx-auto max-w-3xl">
-        <header className="flex items-center justify-between gap-4">
+        <header className="flex flex-wrap items-center justify-between gap-4">
           <Link
             className="text-sm font-medium text-muted-foreground hover:text-foreground"
             href="/app/productos"
           >
             ← Volver a productos
           </Link>
-          <form action={toggle}>
-            <Button type="submit" variant="outline">
-              {product.status === "published" ? "Pasar a borrador" : "Publicar"}
-            </Button>
-          </form>
+          <div className="flex items-center gap-2">
+            <DeleteProductButton action={remove} />
+            <form action={toggle}>
+              <Button type="submit" variant="outline">
+                {product.status === "published" ? "Pasar a borrador" : "Publicar"}
+              </Button>
+            </form>
+          </div>
         </header>
         <p className="mt-10 text-sm font-medium text-muted-foreground">
           {product.status === "published" ? "Producto publicado" : "Borrador"}

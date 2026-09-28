@@ -1,4 +1,9 @@
-import { createOptionValue, createProductOption } from "@/actions/options";
+import {
+  createOptionValue,
+  createProductOption,
+  moveOptionValue,
+  moveProductOption,
+} from "@/actions/options";
 import { Button } from "@/components/ui/button";
 
 type Option = {
@@ -6,7 +11,7 @@ type Option = {
   name: string;
   type: string;
   required: boolean;
-  values: { id: string; label: string; value: string; priceDelta: number }[];
+  values: { id: string; label: string; value: string; priceDelta: number; position: number }[];
 };
 
 const typeLabels: Record<string, string> = {
@@ -64,8 +69,14 @@ export function ProductOptionsEditor({
             Aún no hay opciones. Añade una para comenzar a personalizar este producto.
           </div>
         ) : (
-          options.map((option) => (
-            <OptionCard key={option.id} option={option} productId={productId} />
+          options.map((option, index) => (
+            <OptionCard
+              index={index}
+              key={option.id}
+              option={option}
+              productId={productId}
+              total={options.length}
+            />
           ))
         )}
       </div>
@@ -73,8 +84,20 @@ export function ProductOptionsEditor({
   );
 }
 
-function OptionCard({ productId, option }: { productId: string; option: Option }) {
+function OptionCard({
+  productId,
+  option,
+  index,
+  total,
+}: {
+  productId: string;
+  option: Option;
+  index: number;
+  total: number;
+}) {
   const addValue = createOptionValue.bind(null, productId, option.id);
+  const moveUp = moveProductOption.bind(null, productId, option.id, "up");
+  const moveDown = moveProductOption.bind(null, productId, option.id, "down");
   const supportsValues = option.type !== "text";
   return (
     <article className="rounded-2xl border border-border bg-card p-5">
@@ -86,14 +109,38 @@ function OptionCard({ productId, option }: { productId: string; option: Option }
             {option.required ? " · Obligatoria" : " · Opcional"}
           </p>
         </div>
-        <span className="rounded-full bg-secondary px-2.5 py-1 text-xs font-medium">
-          {option.values.length} {option.values.length === 1 ? "valor" : "valores"}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="rounded-full bg-secondary px-2.5 py-1 text-xs font-medium">
+            {option.values.length} {option.values.length === 1 ? "valor" : "valores"}
+          </span>
+          <form action={moveUp}>
+            <Button
+              aria-label={`Subir ${option.name}`}
+              disabled={index === 0}
+              size="icon-xs"
+              type="submit"
+              variant="outline"
+            >
+              ↑
+            </Button>
+          </form>
+          <form action={moveDown}>
+            <Button
+              aria-label={`Bajar ${option.name}`}
+              disabled={index === total - 1}
+              size="icon-xs"
+              type="submit"
+              variant="outline"
+            >
+              ↓
+            </Button>
+          </form>
+        </div>
       </div>
       {supportsValues ? (
         <>
           <div className="mt-4 space-y-2">
-            {option.values.map((value) => (
+            {option.values.map((value, valueIndex) => (
               <div
                 className="flex items-center justify-between rounded-lg bg-background px-3 py-2 text-sm"
                 key={value.id}
@@ -107,11 +154,20 @@ function OptionCard({ productId, option }: { productId: string; option: Option }
                   )}
                   {value.label}
                 </span>
-                <span className={value.priceDelta > 0 ? "text-accent" : "text-muted-foreground"}>
-                  {value.priceDelta === 0
-                    ? "Sin ajuste"
-                    : `${value.priceDelta > 0 ? "+" : ""}$${value.priceDelta.toLocaleString("es-CL")}`}
-                </span>
+                <div className="flex items-center gap-1.5">
+                  <span className={value.priceDelta > 0 ? "text-accent" : "text-muted-foreground"}>
+                    {value.priceDelta === 0
+                      ? "Sin ajuste"
+                      : `${value.priceDelta > 0 ? "+" : ""}$${value.priceDelta.toLocaleString("es-CL")}`}
+                  </span>
+                  <ValueOrderButtons
+                    canMoveDown={valueIndex < option.values.length - 1}
+                    canMoveUp={valueIndex > 0}
+                    optionId={option.id}
+                    productId={productId}
+                    valueId={value.id}
+                  />
+                </div>
               </div>
             ))}
           </div>
@@ -148,5 +204,48 @@ function OptionCard({ productId, option }: { productId: string; option: Option }
         </p>
       )}
     </article>
+  );
+}
+
+function ValueOrderButtons({
+  productId,
+  optionId,
+  valueId,
+  canMoveUp,
+  canMoveDown,
+}: {
+  productId: string;
+  optionId: string;
+  valueId: string;
+  canMoveUp: boolean;
+  canMoveDown: boolean;
+}) {
+  const moveUp = moveOptionValue.bind(null, productId, optionId, valueId, "up");
+  const moveDown = moveOptionValue.bind(null, productId, optionId, valueId, "down");
+  return (
+    <>
+      <form action={moveUp}>
+        <Button
+          aria-label="Subir valor"
+          disabled={!canMoveUp}
+          size="icon-xs"
+          type="submit"
+          variant="ghost"
+        >
+          ↑
+        </Button>
+      </form>
+      <form action={moveDown}>
+        <Button
+          aria-label="Bajar valor"
+          disabled={!canMoveDown}
+          size="icon-xs"
+          type="submit"
+          variant="ghost"
+        >
+          ↓
+        </Button>
+      </form>
+    </>
   );
 }

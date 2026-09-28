@@ -76,7 +76,12 @@ export default async function StorefrontProductPage({
         <Link className="text-xl font-semibold tracking-tight" href="/">
           configura<span className="text-accent">.</span>
         </Link>
-        <span className="text-sm text-muted-foreground">{result.storeName}</span>
+        <div className="flex items-center gap-4">
+          <span className="text-sm text-muted-foreground">{result.storeName}</span>
+          <Link className="text-sm font-medium underline" href="/carrito">
+            Carrito
+          </Link>
+        </div>
       </header>
       <div className="mx-auto grid max-w-6xl gap-10 px-6 py-10 lg:grid-cols-[1fr_.9fr] lg:px-8 lg:py-16">
         <section>
@@ -116,6 +121,7 @@ export default async function StorefrontProductPage({
             <StorefrontConfigurator
               basePrice={result.product.basePrice}
               options={options}
+              productId={result.product.id}
               rules={rules}
             />
           </div>

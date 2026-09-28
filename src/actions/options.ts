@@ -1,6 +1,6 @@
 "use server";
 
-import { and, count, eq } from "drizzle-orm";
+import { and, asc, count, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -20,6 +20,8 @@ const valueSchema = z.object({
   value: z.string().trim().min(1, "Escribe un valor.").max(100),
   priceDelta: z.coerce.number().int().min(-10_000_000).max(10_000_000),
 });
+
+const directionSchema = z.enum(["up", "down"]);
 
 async function ownedProduct(productId: string) {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -82,6 +84,69 @@ export async function createOptionValue(productId: string, optionId: string, for
     value: parsed.data.value,
     priceDelta: parsed.data.priceDelta,
     position: total,
+  });
+  revalidatePath(`/app/productos/${productId}/editar`);
+}
+
+export async function moveProductOption(productId: string, optionId: string, direction: unknown) {
+  const parsedDirection = directionSchema.safeParse(direction);
+  if (!parsedDirection.success) throw new Error("Dirección de orden inválida.");
+  await ownedProduct(productId);
+  const options = await db
+    .select({ id: productOptions.id, position: productOptions.position })
+    .from(productOptions)
+    .where(eq(productOptions.productId, productId))
+    .orderBy(asc(productOptions.position));
+  const index = options.findIndex((option) => option.id === optionId);
+  if (index === -1) throw new Error("Opción no encontrada.");
+  const neighbor = options[index + (parsedDirection.data === "up" ? -1 : 1)];
+  if (!neighbor) return;
+  await db.transaction(async (tx) => {
+    await tx
+      .update(productOptions)
+      .set({ position: neighbor.position, updatedAt: new Date() })
+      .where(eq(productOptions.id, optionId));
+    await tx
+      .update(productOptions)
+      .set({ position: options[index].position, updatedAt: new Date() })
+      .where(eq(productOptions.id, neighbor.id));
+  });
+  revalidatePath(`/app/productos/${productId}/editar`);
+}
+
+export async function moveOptionValue(
+  productId: string,
+  optionId: string,
+  valueId: string,
+  direction: unknown,
+) {
+  const parsedDirection = directionSchema.safeParse(direction);
+  if (!parsedDirection.success) throw new Error("Dirección de orden inválida.");
+  await ownedProduct(productId);
+  const option = await db
+    .select({ id: productOptions.id })
+    .from(productOptions)
+    .where(and(eq(productOptions.id, optionId), eq(productOptions.productId, productId)))
+    .limit(1);
+  if (!option[0]) throw new Error("Opción no encontrada.");
+  const values = await db
+    .select({ id: optionValues.id, position: optionValues.position })
+    .from(optionValues)
+    .where(eq(optionValues.optionId, optionId))
+    .orderBy(asc(optionValues.position));
+  const index = values.findIndex((value) => value.id === valueId);
+  if (index === -1) throw new Error("Valor no encontrado.");
+  const neighbor = values[index + (parsedDirection.data === "up" ? -1 : 1)];
+  if (!neighbor) return;
+  await db.transaction(async (tx) => {
+    await tx
+      .update(optionValues)
+      .set({ position: neighbor.position, updatedAt: new Date() })
+      .where(eq(optionValues.id, valueId));
+    await tx
+      .update(optionValues)
+      .set({ position: values[index].position, updatedAt: new Date() })
+      .where(eq(optionValues.id, neighbor.id));
   });
   revalidatePath(`/app/productos/${productId}/editar`);
 }

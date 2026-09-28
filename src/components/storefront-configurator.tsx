@@ -1,8 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import Link from "next/link";
+import { useMemo, useState, useTransition } from "react";
+import { addToCart } from "@/actions/cart";
 import { calculateProductPrice } from "@/lib/pricing";
 import { visibleOptionIds } from "@/lib/rules";
+import { missingRequiredOptionIds } from "@/lib/configuration";
 
 type ConfiguratorValue = { id: string; label: string; value: string; priceDelta: number };
 type ConfiguratorOption = {
@@ -20,10 +23,12 @@ type ConfiguratorRule = {
 
 export function StorefrontConfigurator({
   basePrice,
+  productId,
   options,
   rules,
 }: {
   basePrice: number;
+  productId: string;
   options: ConfiguratorOption[];
   rules: ConfiguratorRule[];
 }) {
@@ -31,6 +36,8 @@ export function StorefrontConfigurator({
   const [checked, setChecked] = useState<Record<string, string[]>>({});
   const [textValues, setTextValues] = useState<Record<string, string>>({});
   const [attempted, setAttempted] = useState(false);
+  const [isPending, startTransition] = useTransition();
+  const [cartMessage, setCartMessage] = useState<string | null>(null);
   const allSelectedIds = useMemo(
     () => [...Object.values(choices), ...Object.values(checked).flat()],
     [choices, checked],
@@ -61,15 +68,7 @@ export function StorefrontConfigurator({
     [checked, choices, visibleIds],
   );
   const total = calculateProductPrice(basePrice, selectedIds, priceValues);
-  const missingRequired = visibleOptions.filter(
-    (option) =>
-      option.required &&
-      (option.type === "text"
-        ? !textValues[option.id]?.trim()
-        : option.type === "checkbox"
-          ? !checked[option.id]?.length
-          : !choices[option.id]),
-  );
+  const missingRequiredIds = missingRequiredOptionIds(visibleOptions, choices, checked, textValues);
 
   function select(optionId: string, valueId: string) {
     setChoices((current) => ({ ...current, [optionId]: valueId }));
@@ -84,6 +83,36 @@ export function StorefrontConfigurator({
           ? selected.filter((id) => id !== valueId)
           : [...selected, valueId],
       };
+    });
+  }
+
+  function addConfigurationToCart() {
+    setAttempted(true);
+    if (missingRequiredIds.length > 0) return;
+    setCartMessage(null);
+    startTransition(async () => {
+      try {
+        const selection = Object.fromEntries(
+          options.map((option) => [
+            option.id,
+            {
+              valueIds:
+                option.type === "checkbox"
+                  ? (checked[option.id] ?? [])
+                  : choices[option.id]
+                    ? [choices[option.id]]
+                    : [],
+              ...(option.type === "text" && textValues[option.id]?.trim()
+                ? { text: textValues[option.id].trim() }
+                : {}),
+            },
+          ]),
+        );
+        const result = await addToCart({ productId, selection });
+        setCartMessage(`Añadido al carrito · $${result.total.toLocaleString("es-CL")} CLP`);
+      } catch (error) {
+        setCartMessage(error instanceof Error ? error.message : "No pudimos añadir el producto.");
+      }
     });
   }
 
@@ -176,7 +205,7 @@ export function StorefrontConfigurator({
                 ))}
               </div>
             )}
-            {attempted && missingRequired.some((missing) => missing.id === option.id) && (
+            {attempted && missingRequiredIds.includes(option.id) && (
               <p className="mt-2 text-sm text-destructive">Esta opción es obligatoria.</p>
             )}
           </fieldset>
@@ -192,15 +221,24 @@ export function StorefrontConfigurator({
           </div>
           <button
             className="rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition hover:bg-primary/80"
-            onClick={() => setAttempted(true)}
+            disabled={isPending}
+            onClick={addConfigurationToCart}
             type="button"
           >
-            Preparar pedido
+            {isPending ? "Añadiendo…" : "Añadir al carrito"}
           </button>
         </div>
-        {attempted && missingRequired.length === 0 && (
+        {attempted && missingRequiredIds.length === 0 && (
           <p className="mt-4 rounded-lg bg-[#e2ece0] px-3 py-2 text-sm text-[#41613d]">
-            Configuración válida. El carrito y checkout simulado son el siguiente paso.
+            Configuración válida. Puedes añadirla al carrito.
+          </p>
+        )}
+        {cartMessage && (
+          <p className="mt-4 rounded-lg bg-secondary px-3 py-2 text-sm text-secondary-foreground">
+            {cartMessage}{" "}
+            <Link className="font-semibold underline" href="/carrito">
+              Ver carrito
+            </Link>
           </p>
         )}
       </div>
