@@ -7,6 +7,8 @@ import { DeleteProductButton } from "@/components/delete-product-button";
 import { ProductOptionsEditor } from "@/components/product-options-editor";
 import { ProductRulesEditor } from "@/components/product-rules-editor";
 import { ProductForm } from "@/components/product-form";
+import { ProductEditorPreview } from "@/components/product-editor-preview";
+import { ProductImageRemove } from "@/components/product-image-upload";
 import { Button } from "@/components/ui/button";
 import { db } from "@/db";
 import { optionValues, productOptions, products, stores, visibilityRules } from "@/db/schema";
@@ -79,47 +81,51 @@ export default async function EditProductPage({
 
   return (
     <main className="min-h-screen bg-background p-6 md:p-10">
-      <div className="mx-auto max-w-3xl">
-        <header className="flex flex-wrap items-center justify-between gap-4">
-          <Link
-            className="text-sm font-medium text-muted-foreground hover:text-foreground"
-            href="/app/productos"
-          >
-            ← Volver a productos
-          </Link>
-          <div className="flex items-center gap-2">
-            <DeleteProductButton action={remove} />
-            <form action={toggle}>
-              <Button type="submit" variant="outline">
-                {product.status === "published" ? "Pasar a borrador" : "Publicar"}
-              </Button>
-            </form>
-          </div>
-        </header>
-        <p className="mt-10 text-sm font-medium text-muted-foreground">
-          {product.status === "published" ? "Producto publicado" : "Borrador"}
-        </p>
-        <h1 className="mt-2 text-4xl font-semibold tracking-tight">Editar producto</h1>
-        <p className="mt-3 text-muted-foreground">
-          Define el producto base y sus decisiones de compra.
-        </p>
-        {product.status === "published" && (
-          <p className="mt-4 rounded-lg bg-[#e2ece0] px-3 py-2 text-sm text-[#41613d]">
-            Tu configurador ya está público:{" "}
+      <div className="mx-auto max-w-5xl lg:grid lg:grid-cols-[1fr_20rem] lg:gap-10">
+        <div>
+          <header className="flex flex-wrap items-center justify-between gap-4">
             <Link
-              className="font-semibold underline"
-              href={`/tienda/${store.slug}/${product.slug}`}
-              target="_blank"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground"
+              href="/app/productos"
             >
-              ver producto
+              ← Volver a productos
             </Link>
+            <div className="flex items-center gap-2">
+              <DeleteProductButton action={remove} />
+              <form action={toggle}>
+                <Button type="submit" variant="outline">
+                  {product.status === "published" ? "Pasar a borrador" : "Publicar"}
+                </Button>
+              </form>
+            </div>
+          </header>
+          <p className="mt-10 text-sm font-medium text-muted-foreground">
+            {product.status === "published" ? "Producto publicado" : "Borrador"}
           </p>
-        )}
-        <div className="mt-8">
-          <ProductForm action={save} product={product} submitLabel="Guardar cambios" />
+          <h1 className="mt-2 text-4xl font-semibold tracking-tight">Editar producto</h1>
+          <p className="mt-3 text-muted-foreground">
+            Define el producto base y sus decisiones de compra.
+          </p>
+          {product.status === "published" && (
+            <p className="mt-4 rounded-lg bg-[#e2ece0] px-3 py-2 text-sm text-[#41613d]">
+              Tu configurador ya está público:{" "}
+              <Link
+                className="font-semibold underline"
+                href={`/tienda/${store.slug}/${product.slug}`}
+                target="_blank"
+              >
+                ver producto
+              </Link>
+            </p>
+          )}
+          <div className="mt-8">
+            <ProductForm action={save} product={product} submitLabel="Guardar cambios" />
+            {product.imageUrl && <ProductImageRemove productId={product.id} />}
+          </div>
+          <ProductOptionsEditor options={options} productId={product.id} />
+          <ProductRulesEditor options={options} productId={product.id} rules={rules} />
         </div>
-        <ProductOptionsEditor options={options} productId={product.id} />
-        <ProductRulesEditor options={options} productId={product.id} rules={rules} />
+        <ProductEditorPreview options={options} product={product} />
       </div>
     </main>
   );

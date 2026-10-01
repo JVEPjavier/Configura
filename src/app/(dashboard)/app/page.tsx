@@ -14,7 +14,15 @@ export default async function DashboardPage() {
           <span className="text-xl font-semibold">
             configura<span className="text-accent">.</span>
           </span>
-          <span className="text-sm text-muted-foreground">{session.user.email}</span>
+          <div className="flex items-center gap-4">
+            <Link
+              className="text-sm font-medium text-muted-foreground hover:text-foreground"
+              href="/app/configuracion"
+            >
+              Configuración
+            </Link>
+            <span className="text-sm text-muted-foreground">{session.user.email}</span>
+          </div>
         </header>
         <p className="mb-3 text-sm font-medium text-muted-foreground">Tu espacio</p>
         <h1 className="text-4xl font-semibold tracking-tight">Empieza por tu catálogo.</h1>

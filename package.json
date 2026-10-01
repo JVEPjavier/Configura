@@ -11,10 +11,14 @@
     "format:check": "prettier --check .",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
+    "db:seed": "node ./scripts/seed.mjs",
     "db:studio": "drizzle-kit studio",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "e2e:up": "docker compose -f compose.e2e.yaml up -d --build",
+    "e2e:down": "docker compose -f compose.e2e.yaml down",
+    "test:e2e:local": "RUN_E2E=1 E2E_BASE_URL=http://localhost:3001 E2E_DATABASE_URL=postgresql://configura:configura_test_local_only@localhost:5433/configura_test playwright test"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",
@@ -25,6 +29,7 @@
     "cn": "^0.2.6",
     "drizzle-orm": "^0.45.2",
     "lucide-react": "^1.43.0",
+    "minio": "^8.0.7",
     "next": "16.3.4",
     "next-themes": "^0.4.6",
     "pg": "^8.23.0",

@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { and, eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { StorefrontConfigurator } from "@/components/storefront-configurator";
@@ -87,14 +86,12 @@ export default async function StorefrontProductPage({
         <section>
           <div className="relative flex aspect-square items-center justify-center overflow-hidden rounded-3xl bg-[#ddd1bf]">
             {result.product.imageUrl ? (
-              <Image
+              // Las imágenes pueden venir de una URL externa o del proxy local de MinIO.
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
                 alt={result.product.name}
-                className="object-cover"
-                fill
-                loader={({ src }) => src}
-                sizes="(min-width: 1024px) 50vw, 100vw"
+                className="absolute inset-0 size-full object-cover"
                 src={result.product.imageUrl}
-                unoptimized
               />
             ) : (
               <div className="relative size-2/3">

@@ -1,24 +1,24 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f7f4ee;
-  --foreground: #1c1c1b;
-  --card: #fffdf8;
-  --card-foreground: #1c1c1b;
-  --popover: #fffdf8;
-  --popover-foreground: #1c1c1b;
-  --primary: #1c1c1b;
-  --primary-foreground: #f7f4ee;
-  --secondary: #e9e5dc;
-  --secondary-foreground: #1c1c1b;
-  --muted: #e9e5dc;
-  --muted-foreground: #6d6b65;
-  --accent: #d96846;
-  --accent-foreground: #fffdf8;
-  --destructive: #b83e3e;
-  --border: #d8d3c9;
-  --input: #d8d3c9;
-  --ring: #84997b;
+  --background: #080d1b;
+  --foreground: #f4f7fb;
+  --card: #111b30;
+  --card-foreground: #f4f7fb;
+  --popover: #111b30;
+  --popover-foreground: #f4f7fb;
+  --primary: #ddebff;
+  --primary-foreground: #08101f;
+  --secondary: #1b2944;
+  --secondary-foreground: #f4f7fb;
+  --muted: #0d1426;
+  --muted-foreground: #9aa9c1;
+  --accent: #68b8ff;
+  --accent-foreground: #08101f;
+  --destructive: #ff8994;
+  --border: #253654;
+  --input: #253654;
+  --ring: #68b8ff;
   --radius: 0.75rem;
 }
 
@@ -41,6 +41,7 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-border: var(--border);
+  --color-border-subtle: #1a2740;
   --color-input: var(--input);
   --color-ring: var(--ring);
   --radius-sm: calc(var(--radius) - 4px);
@@ -52,5 +53,5 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
 }

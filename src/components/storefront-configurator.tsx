@@ -128,6 +128,7 @@ export function StorefrontConfigurator({
             {option.type === "text" ? (
               <input
                 className="mt-3 h-11 w-full rounded-lg border border-input bg-background px-3"
+                aria-label={option.name}
                 onChange={(event) =>
                   setTextValues((current) => ({ ...current, [option.id]: event.target.value }))
                 }
@@ -206,7 +207,7 @@ export function StorefrontConfigurator({
               </div>
             )}
             {attempted && missingRequiredIds.includes(option.id) && (
-              <p className="mt-2 text-sm text-destructive">Esta opción es obligatoria.</p>
+              <p className="mt-2 text-sm text-destructive" role="alert">Esta opción es obligatoria.</p>
             )}
           </fieldset>
         ))}
@@ -229,12 +230,12 @@ export function StorefrontConfigurator({
           </button>
         </div>
         {attempted && missingRequiredIds.length === 0 && (
-          <p className="mt-4 rounded-lg bg-[#e2ece0] px-3 py-2 text-sm text-[#41613d]">
+          <p aria-live="polite" className="mt-4 rounded-lg bg-[#e2ece0] px-3 py-2 text-sm text-[#41613d]">
             Configuración válida. Puedes añadirla al carrito.
           </p>
         )}
         {cartMessage && (
-          <p className="mt-4 rounded-lg bg-secondary px-3 py-2 text-sm text-secondary-foreground">
+          <p aria-live="polite" className="mt-4 rounded-lg bg-secondary px-3 py-2 text-sm text-secondary-foreground">
             {cartMessage}{" "}
             <Link className="font-semibold underline" href="/carrito">
               Ver carrito
