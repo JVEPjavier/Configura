@@ -16,14 +16,6 @@ Incluye el entorno de desarrollo, la identidad visual inicial, autenticación co
 - Better Auth
 - Zod, React Hook Form y shadcn/ui
 
-## Desarrollo sin Docker
-
-```bash
-npm run dev
-```
-
-La aplicación estará disponible en `http://localhost:3000`.
-
 ## Desarrollo con Docker
 
 1. Instala y habilita Docker Compose.
@@ -44,6 +36,7 @@ Esto inicia:
 
 - `app`: servidor de Next.js en `http://localhost:3000`.
 - `db`: PostgreSQL 16, aislado de la red del host y persistido en el volumen `postgres_data`.
+- `minio`: almacenamiento de imágenes local; su consola está en `http://localhost:9001`.
 
 Después de actualizar el esquema, genera y aplica una migración:
 
@@ -64,12 +57,26 @@ Para eliminar también los datos locales de PostgreSQL:
 docker compose down --volumes
 ```
 
+Para cargar una tienda y producto público de demostración, después de las migraciones:
+
+```bash
+docker compose exec app npm run db:seed
+```
+
+El seed es idempotente y deja disponible `http://localhost:3000/tienda/taller-norte/taza-horizonte`.
+
+## Variables locales
+
+Parte de `.env.example` y no versiona `.env`. Además de PostgreSQL y Better Auth, la carga local usa `MINIO_ENDPOINT`, `MINIO_PORT`, `MINIO_ROOT_USER` y `MINIO_ROOT_PASSWORD`; los valores de ejemplo sólo son válidos para Docker local.
+
 ## Verificación
 
 ```bash
 npm run lint
 npm run build
 npm test
+npm run e2e:up
+npm run test:e2e:local
 ```
 
 ## Scripts útiles
@@ -78,10 +85,18 @@ npm test
 npm run db:generate # crear una migración desde el esquema Drizzle
 npm run db:migrate  # aplicar migraciones
 npm run db:studio   # inspeccionar datos con Drizzle Studio
-npm run test:e2e    # pruebas Playwright (se añaden junto a los flujos E2E)
+npm run db:seed     # cargar Taller Norte y una taza de demostración
+npm run e2e:up      # levantar app y PostgreSQL aislados para Playwright
+npm run test:e2e:local # ejecutar el checkout E2E aislado y con limpieza
+npm run e2e:down    # detener el entorno E2E
 ```
 
 ## Documentación
 
 - [Identidad del proyecto](PROJECT.md)
 - [Plan de creación](../../configura-plan.md)
+- [Guía de demo local](GUIA_DEMO_LOCAL.md)
+
+## Alcance actual
+
+El MVP cubre catálogo configurable, carrito y checkout de demostración, gestión básica de tienda, imágenes locales con MinIO y pruebas automatizadas. No incluye pagos, despliegue, dominio, hosting, base de datos gestionada ni almacenamiento de producción.

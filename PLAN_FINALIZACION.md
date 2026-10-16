@@ -2,8 +2,14 @@
 
 ## Objetivo
 
-Cerrar los puntos pendientes del MVP para tener una demo reproducible, accesible y desplegable.
+Cerrar los puntos pendientes del MVP para tener una demo local reproducible, accesible y lista para portafolio.
 No incluye pagos, integraciones de e-commerce, inventario, reglas anidadas ni editor gráfico avanzado.
+
+## Estado de implementación (local)
+
+- **Hitos 1 a 5:** implementados y validados con lint, build, unitarias e integración/E2E aislado.
+- **Hito 6:** README y guía de demo local implementados. La grabación manual de capturas/GIF queda como material de presentación, no como dependencia funcional del MVP.
+- **Fuera de alcance:** despliegue, dominio, hosting, base gestionada y almacenamiento de producción.
 
 ## Orden de implementación
 
@@ -67,7 +73,7 @@ No incluye pagos, integraciones de e-commerce, inventario, reglas anidadas ni ed
 
 ### Hito 5 — Calidad y accesibilidad
 
-**Objetivo:** cerrar la revisión de experiencia antes de publicar.
+**Objetivo:** cerrar la revisión de experiencia de la demo local.
 
 1. Probar teclado: foco visible, orden lógico, acciones de carrito, diálogos y formularios.
 2. Revisar etiquetas, `aria-label`, mensajes de validación, contraste y estados deshabilitados.
@@ -80,16 +86,14 @@ No incluye pagos, integraciones de e-commerce, inventario, reglas anidadas ni ed
 - Todos los flujos principales se pueden completar con teclado.
 - El E2E, lint, build, unitarias e integración PostgreSQL pasan en una ejecución limpia.
 
-### Hito 6 — Documentación y publicación
+### Hito 6 — Documentación de portafolio
 
-**Objetivo:** dejar el repositorio y la demo listos para portafolio.
+**Objetivo:** dejar el repositorio y el recorrido local listos para portafolio, sin desplegar.
 
 1. Actualizar README: arquitectura, variables, arranque, migración, seed, pruebas y limitaciones del MVP.
 2. Crear capturas y GIF/video de 45–60 segundos: comerciante → configurador → pedido.
-3. Preparar configuración de producción: base PostgreSQL gestionada, secretos, almacenamiento compatible S3 y variables de entorno.
-4. Desplegar la aplicación y comprobar registro, configurador, carrito y pedido en el entorno publicado.
-
-**Decisión requerida antes de ejecutar el hito 6:** elegir proveedor de hosting, base de datos, almacenamiento, dominio y presupuesto. Vercel + PostgreSQL gestionado + S3 compatible es la ruta propuesta, pero requiere tus cuentas y autorización.
+3. Incluir un checklist de demo local: registro, producto, reglas, carrito, checkout y pedido.
+4. Documentar explícitamente que el despliegue, dominio, hosting, base gestionada y almacenamiento de producción quedan fuera de este plan.
 
 ## Dependencias
 
